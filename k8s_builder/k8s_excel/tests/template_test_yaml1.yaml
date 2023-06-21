@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mongo
+  name: mongo-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+      - env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              key: mongo-root-username
+              name: mongo-configmap
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: mongo-root-password
+              name: mongo-secret
+        - name: MONGO_INITDB_ROOT_PASSWORD2
+          value: mongo-secret.mongo-root-password
+        - name: MONGO_INITDB_ROOT_USERNAME2
+          value: username
+        image: mongo
+        name: mongo
+        ports:
+        - containerPort: 27017
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-service
+spec:
+  ports:
+  - port: 27017
+    protocol: TCP
+    targetPort: 27017
+  selector:
+    app: mongo
+---
+apiVersion: v1
+data:
+  mongo-root-username: username
+kind: ConfigMap
+metadata:
+  name: mongo-configmap
+---
+apiVersion: v1
+data:
+  mongo-root-password: cGFzc3dvcmQ=
+kind: Secret
+metadata:
+  name: mongo-secret
+type: Opaque

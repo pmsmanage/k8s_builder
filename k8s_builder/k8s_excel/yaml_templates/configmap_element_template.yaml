@@ -1,0 +1,5 @@
+name: placeholder
+valueFrom:
+  configMapKeyRef:
+    name: placeholder
+    key: placeholder
